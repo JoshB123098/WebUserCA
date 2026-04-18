@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Orders</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f5f5f5;
+      margin: 0;
+    }
+
+    header {
+      background: #222;
+      color: white;
+      text-align: center;
+      padding: 15px;
+    }
+
+    .form-wrapper {
+      background: white;
+      max-width: 500px;
+      margin: 20px auto;
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+    }
+
+    button {
+      padding: 10px;
+      background: #007bff;
+      color: white;
+      border: none;
+      width: 100%;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .order {
+      background: white;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Orders</h1>
+</header>
+
+<div class="form-wrapper">
+  <h2>Add Order</h2>
+
+  <input id="product" placeholder="Product ID">
+  <input id="quantity" placeholder="Quantity">
+  <input id="price" placeholder="Total Price">
+  <input id="name" placeholder="Customer Name">
+
+  <button onclick="addOrder()">Add Order</button>
+</div>
+
+<div class="container" id="order-list"></div>
+
+<script>
+const SUPABASE_URL = "https://azlrxnupkguyhugmuhil.supabase.co";
+const SUPABASE_KEY = "PASeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6bHJ4bnVwa2d1eWh1Z211aGlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0OTU4MDIsImV4cCI6MjA5MTA3MTgwMn0.p8SnIEXykA-0ouncbxdUBnvaj-s-F-tDR6fQeHs2ohE";
+
+async function getOrders() {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`
+    }
+  });
+
+  const data = await res.json();
+  displayOrders(data);
+}
+
+function displayOrders(orders) {
+  const container = document.getElementById("order-list");
+  container.innerHTML = "";
+
+  orders.forEach(order => {
+    container.innerHTML += `
+      <div class="order">
+        <h3>Order #${order.id}</h3>
+        <p>Product: ${order.product_id}</p>
+        <p>Quantity: ${order.quantity}</p>
+        <p>Total: €${order.total_price}</p>
+        <p>Customer: ${order.customer_name}</p>
+      </div>
+    `;
+  });
+}
+
+async function addOrder() {
+  const product = document.getElementById("product").value;
+  const quantity = document.getElementById("quantity").value;
+  const price = document.getElementById("price").value;
+  const name = document.getElementById("name").value;
+
+  await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`
+    },
+    body: JSON.stringify({
+      product_id: product,
+      quantity: quantity,
+      total_price: price,
+      customer_name: name
+    })
+  });
+
+  getOrders();
+}
+
+getOrders();
+</script>
+
+</body>
+</html>

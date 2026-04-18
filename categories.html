@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Categories - Student Shop</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #f5f3ee;
+      --surface: #ffffff;
+      --accent: #2a6049;
+      --accent-light: #e8f2ee;
+      --accent-mid: #4a9070;
+      --text: #1a1a18;
+      --muted: #6b6b60;
+      --border: #dddbd3;
+      --danger: #c0392b;
+      --danger-light: #fdecea;
+      --radius: 12px;
+      --shadow: 0 2px 16px rgba(0,0,0,0.07);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--accent);
+      color: #fff;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.3rem;
+      letter-spacing: -0.02em;
+    }
+
+    header .logo span {
+      opacity: 0.6;
+      font-weight: 400;
+    }
+
+    header nav a {
+      color: rgba(255,255,255,0.75);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-left: 1.5rem;
+      transition: color 0.2s;
+    }
+
+    header nav a:hover,
+    header nav a.active {
+      color: #fff;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .page-header h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    .page-header h1 span {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 400;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--muted);
+      margin-top: 4px;
+      letter-spacing: 0;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0.6rem 1.25rem;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.18s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #1f4d38;
+    }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid var(--danger);
+      padding: 0.4rem 0.8rem;
+      font-size: 0.82rem;
+    }
+
+    .btn-danger:hover {
+      background: var(--danger-light);
+    }
+
+    .btn-edit {
+      background: var(--accent-light);
+      color: var(--accent);
+      border: 1px solid #c4ddd5;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.82rem;
+    }
+
+    .btn-edit:hover {
+      background: #d2ece4;
+    }
+
+    .btn-cancel {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .btn-cancel:hover {
+      background: #eee;
+    }
+
+    .form-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1.5px solid var(--border);
+      padding: 1.75rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .form-card h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      color: var(--accent);
+    }
+
+    .form-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .form-group label {
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      padding: 0.65rem 0.9rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      color: var(--text);
+      background: #fafaf8;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      resize: vertical;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--accent-mid);
+      box-shadow: 0 0 0 3px rgba(74,144,112,0.12);
+      background: #fff;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--text);
+      color: #fff;
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.25s;
+      pointer-events: none;
+      z-index: 999;
+      max-width: 300px;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    #toast.success {
+      background: var(--accent);
+    }
+
+    #toast.error {
+      background: var(--danger);
+    }
+
+    #loading {
+      text-align: center;
+      padding: 3rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border: 2.5px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-bottom: 0.75rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .table-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1.5px solid var(--border);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.1rem 1.5rem;
+      border-bottom: 1.5px solid var(--border);
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .table-toolbar h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    #cat-count {
+      background: var(--accent-light);
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: #f9f8f5;
+    }
+
+    th {
+      text-align: left;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.78rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      border-bottom: 1.5px solid var(--border);
+    }
+
+    td {
+      padding: 0.9rem 1.25rem;
+      font-size: 0.93rem;
+      border-bottom: 1px solid #f0ede7;
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: #fafaf7;
+    }
+
+    .td-id {
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 500;
+      width: 60px;
+    }
+
+    .td-name {
+      font-weight: 500;
+    }
+
+    .td-desc {
+      color: var(--muted);
+      font-size: 0.88rem;
+      max-width: 280px;
+    }
+
+    .td-date {
+      color: var(--muted);
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+
+    .td-actions {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+      white-space: nowrap;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3.5rem 2rem;
+      color: var(--muted);
+    }
+
+    .empty-state p {
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Student<span>Shop</span></div>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="categories.html" class="active">Categories</a>
+    <a href="products.html">Products</a>
+    <a href="orders.html">Orders</a>
+  </nav>
+</header>
+
+<main>
+
+  <div class="page-header">
+    <h1>
+      Categories
+      <span>Manage product categories</span>
+    </h1>
+    <button class="btn btn-primary" onclick="showAddForm()">Add Category</button>
+  </div>
+
+  <div class="form-card" id="form-card" style="display:none;">
+    <h2 id="form-title">Add New Category</h2>
+    <input type="hidden" id="edit-id" />
+    <div class="form-row">
+      <div class="form-group">
+        <label for="inp-name">Name</label>
+        <input type="text" id="inp-name" placeholder="e.g. Electronics" maxlength="100"/>
+      </div>
+      <div class="form-group">
+        <label for="inp-desc">Description</label>
+        <textarea id="inp-desc" rows="2" placeholder="Short description of this category"></textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="saveCategory()">Save Category</button>
+      <button class="btn btn-cancel" onclick="hideForm()">Cancel</button>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-toolbar">
+      <h2>All Categories &nbsp;<span id="cat-count">0</span></h2>
+    </div>
+    <div id="loading">
+      <div class="spinner"></div>
+      <br>Loading categories...
+    </div>
+    <div id="table-wrap" style="display:none;">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Created</th>
+            <th style="text-align:right">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="cat-body"></tbody>
+      </table>
+      <div class="empty-state" id="empty-state" style="display:none;">
+        <p>No categories yet. Add your first one.</p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://rgqyweaxmsyqwhutdqaa.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJncXl3ZWF4bXN5cXdodXRkcWFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxMTE3MjEsImV4cCI6MjA4NTY4NzcyMX0.Kez-WwuJRusuQiGSL0pVQze4Qq-j-P0USQtjsk8c6uY';
+
+  const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  async function loadCategories() {
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('table-wrap').style.display = 'none';
+
+    const { data, error } = await client.from('categories').select('*').order('id');
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('table-wrap').style.display = 'block';
+
+    if (error) {
+      showToast('Error loading categories: ' + error.message, 'error');
+      return;
+    }
+
+    renderTable(data);
+  }
+
+  function renderTable(data) {
+    const tbody = document.getElementById('cat-body');
+    const empty = document.getElementById('empty-state');
+    document.getElementById('cat-count').textContent = data.length;
+
+    if (data.length === 0) {
+      tbody.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+
+    empty.style.display = 'none';
+    tbody.innerHTML = data.map(function(c) {
+      return '<tr>' +
+        '<td class="td-id">' + c.id + '</td>' +
+        '<td class="td-name">' + esc(c.name) + '</td>' +
+        '<td class="td-desc">' + esc(c.description || '') + '</td>' +
+        '<td class="td-date">' + formatDate(c.created_at) + '</td>' +
+        '<td><div class="td-actions">' +
+          '<button class="btn btn-edit" onclick="openEdit(' + c.id + ',\'' + esc(c.name) + '\',\'' + esc(c.description || '') + '\')">Edit</button>' +
+          '<button class="btn btn-danger" onclick="deleteCategory(' + c.id + ',\'' + esc(c.name) + '\')">Delete</button>' +
+        '</div></td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  async function saveCategory() {
+    const name = document.getElementById('inp-name').value.trim();
+    const description = document.getElementById('inp-desc').value.trim();
+    const editId = document.getElementById('edit-id').value;
+
+    if (!name) {
+      showToast('Name is required', 'error');
+      return;
+    }
+
+    var result;
+    if (editId) {
+      result = await client.from('categories').update({ name: name, description: description }).eq('id', editId);
+    } else {
+      result = await client.from('categories').insert([{ name: name, description: description }]);
+    }
+
+    if (result.error) {
+      showToast('Error saving: ' + result.error.message, 'error');
+      return;
+    }
+
+    showToast(editId ? 'Category updated' : 'Category added', 'success');
+    hideForm();
+    loadCategories();
+  }
+
+  async function deleteCategory(id, name) {
+    if (!confirm('Delete category "' + name + '"? This cannot be undone.')) return;
+
+    const { error } = await client.from('categories').delete().eq('id', id);
+
+    if (error) {
+      showToast('Error deleting: ' + error.message, 'error');
+      return;
+    }
+
+    showToast('Category deleted', 'success');
+    loadCategories();
+  }
+
+  function showAddForm() {
+    document.getElementById('form-title').textContent = 'Add New Category';
+    document.getElementById('edit-id').value = '';
+    document.getElementById('inp-name').value = '';
+    document.getElementById('inp-desc').value = '';
+    document.getElementById('form-card').style.display = 'block';
+    document.getElementById('inp-name').focus();
+    document.getElementById('form-card').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function openEdit(id, name, desc) {
+    document.getElementById('form-title').textContent = 'Edit Category';
+    document.getElementById('edit-id').value = id;
+    document.getElementById('inp-name').value = name;
+    document.getElementById('inp-desc').value = desc;
+    document.getElementById('form-card').style.display = 'block';
+    document.getElementById('inp-name').focus();
+    document.getElementById('form-card').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function hideForm() {
+    document.getElementById('form-card').style.display = 'none';
+    document.getElementById('edit-id').value = '';
+    document.getElementById('inp-name').value = '';
+    document.getElementById('inp-desc').value = '';
+  }
+
+  function esc(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    return d.toLocaleDateString('en-IE', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  var toastTimer;
+  function showToast(msg, type) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'show ' + (type || '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function() { t.className = ''; }, 3000);
+  }
+
+  loadCategories();
+</script>
+</body>
+</html>
