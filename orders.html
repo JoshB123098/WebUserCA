@@ -113,7 +113,7 @@ footer span{color:#fff}
 const SUPABASE_URL="https://rgqyweaxmsyqwhutdqaa.supabase.co";
 const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJncXl3ZWF4bXN5cXdodXRkcWFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxMTE3MjEsImV4cCI6MjA4NTY4NzcyMX0.Kez-WwuJRusuQiGSL0pVQze4Qq-j-P0USQtjsk8c6uY";
 
-// Load all orders from Supabase
+// Gets all orders stored in the database and shows them
 async function load(){
   const res=await fetch(`${SUPABASE_URL}/rest/v1/orders?order=id.asc`,{
     headers:{apikey:SUPABASE_KEY,Authorization:`Bearer ${SUPABASE_KEY}`}
@@ -122,7 +122,7 @@ async function load(){
   displayOrders(data);
 }
 
-// Display orders as cards
+// Builds order cards and puts them on the screen
 function displayOrders(data){
   const container=document.getElementById("order-cards");
   if(data.length===0){
@@ -144,7 +144,7 @@ function displayOrders(data){
   `).join("");
 }
 
-// Add new order or update existing
+// Handles saving a new order or changing an existing one
 async function addOrder(){
   const name=document.getElementById("inp-name").value.trim();
   const product=document.getElementById("inp-product").value.trim();
@@ -183,7 +183,7 @@ function editOrder(id,name,product,quantity,price){
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
-// Delete order
+// Removes a selected order after the user confirms
 async function deleteOrder(id){
   if(!confirm("Delete this order?"))return;
   await fetch(`${SUPABASE_URL}/rest/v1/orders?id=eq.${id}`,{
@@ -192,13 +192,15 @@ async function deleteOrder(id){
   });
   load();
 }
-
+  
+// Shows the form when the user wants to add an order
 function showForm(){
   document.getElementById("form-title").textContent="New Order";
   document.getElementById("form-box").style.display="block";
   window.scrollTo({top:0,behavior:"smooth"});
 }
-
+  
+// Resets and hides the form after saving or cancelling
 function cancelForm(){
   document.getElementById("edit-id").value="";
   document.getElementById("inp-name").value="";
