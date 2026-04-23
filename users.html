@@ -1,1 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Users - Student Shop</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f3ee; --surface: #ffffff; --accent: #2a6049;
+      --accent-light: #e8f2ee; --accent-mid: #4a9070; --text: #1a1a18;
+      --muted: #6b6b60; --border: #dddbd3; --danger: #c0392b;
+      --danger-light: #fdecea; --radius: 12px; --shadow: 0 2px 16px rgba(0,0,0,0.07);
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    header { background: var(--accent); color: #fff; padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 64px; position: sticky; top: 0; z-index: 100; }
+    header .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.3rem; }
+    header .logo span { opacity: 0.6; font-weight: 400; }
+    header nav a { color: rgba(255,255,255,0.75); text-decoration: none; font-size: 0.9rem; margin-left: 1.5rem; transition: color 0.2s; }
+    header nav a:hover, header nav a.active { color: #fff; }
+    main { max-width: 900px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+    .page-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+    .page-header h1 { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+    .page-header h1 span { display: block; font-size: 0.95rem; font-weight: 400; font-family: 'DM Sans', sans-serif; color: var(--muted); margin-top: 4px; }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 0.6rem 1.25rem; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; border: none; transition: all 0.18s; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #1f4d38; }
+    .btn-danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); padding: 0.4rem 0.8rem; font-size: 0.82rem; }
+    .btn-danger:hover { background: var(--danger-light); }
+    .btn-edit { background: var(--accent-light); color: var(--accent); border: 1px solid #c4ddd5; padding: 0.4rem 0.8rem; font-size: 0.82rem; }
+    .btn-edit:hover { background: #d2ece4; }
+    .btn-cancel { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .btn-cancel:hover { background: #eee; }
+    .form-card { background: var(--surface); border-radius: var(--radius); border: 1.5px solid var(--border); padding: 1.75rem; margin-bottom: 2rem; box-shadow: var(--shadow); }
+    .form-card h2 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 1.25rem; color: var(--accent); }
+    .form-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 200px; }
+    .form-group label { font-size: 0.82rem; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .form-group input, .form-group textarea { padding: 0.65rem 0.9rem; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; color: var(--text); background: #fafaf8; outline: none; transition: border-color 0.2s; resize: vertical; }
+    .form-group input:focus, .form-group textarea:focus { border-color: var(--accent-mid); box-shadow: 0 0 0 3px rgba(74,144,112,0.12); background: #fff; }
+    .form-actions { display: flex; gap: 0.75rem; margin-top: 1.25rem; flex-wrap: wrap; }
+    #toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--text); color: #fff; padding: 0.75rem 1.25rem; border-radius: 8px; font-size: 0.9rem; font-weight: 500; opacity: 0; transform: translateY(10px); transition: all 0.25s; pointer-events: none; z-index: 999; }
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.success { background: var(--accent); }
+    #toast.error { background: var(--danger); }
+    #loading { text-align: center; padding: 3rem; color: var(--muted); font-size: 0.95rem; }
+    .spinner { display: inline-block; width: 24px; height: 24px; border: 2.5px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin-bottom: 0.75rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .table-card { background: var(--surface); border-radius: var(--radius); border: 1.5px solid var(--border); overflow: hidden; box-shadow: var(--shadow); }
+    .table-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 1.1rem 1.5rem; border-bottom: 1.5px solid var(--border); }
+    .table-toolbar h2 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; }
+    #user-count { background: var(--accent-light); color: var(--accent); font-size: 0.8rem; font-weight: 600; padding: 2px 10px; border-radius: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: #f9f8f5; }
+    th { text-align: left; padding: 0.75rem 1.25rem; font-size: 0.78rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); border-bottom: 1.5px solid var(--border); }
+    td { padding: 0.9rem 1.25rem; font-size: 0.93rem; border-bottom: 1px solid #f0ede7; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafaf7; }
+    .td-id { color: var(--muted); font-size: 0.82rem; width: 60px; }
+    .td-name { font-weight: 500; }
+    .td-email { color: var(--muted); font-size: 0.88rem; }
+    .td-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
+    .empty-state { text-align: center; padding: 3.5rem 2rem; color: var(--muted); }
+  </style>
+</head>
+<body>
 
+<header>
+  <div class="logo">Student<span>Shop</span></div>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="categories.html">Categories</a>
+    <a href="products.html">Products</a>
+    <a href="users.html" class="active">Users</a>
+    <a href="orders.html">Orders</a>
+  </nav>
+</header>
+
+<main>
+  <div class="page-header">
+    <h1>Users <span>Manage registered users</span></h1>
+    <button class="btn btn-primary" onclick="showAddForm()">Add User</button>
+  </div>
+
+  <div class="form-card" id="form-card" style="display:none;">
+    <h2 id="form-title">Add New User</h2>
+    <input type="hidden" id="edit-id" />
+    <div class="form-row">
+      <div class="form-group">
+        <label for="inp-name">Name</label>
+        <input type="text" id="inp-name" placeholder="e.g. John Smith" maxlength="100"/>
+      </div>
+      <div class="form-group">
+        <label for="inp-email">Email</label>
+        <input type="email" id="inp-email" placeholder="e.g. john@tudublin.ie"/>
+      </div>
+      <div class="form-group">
+        <label for="inp-address">Address</label>
+        <textarea id="inp-address" rows="2" placeholder="e.g. 123 Main Street, Dublin"></textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="saveUser()">Save User</button>
+      <button class="btn btn-cancel" onclick="hideForm()">Cancel</button>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-toolbar">
+      <h2>All Users &nbsp;<span id="user-count">0</span></h2>
+    </div>
+    <div id="loading">
+      <div class="spinner"></div>
+      <br>Loading users...
+    </div>
+    <div id="table-wrap" style="display:none;">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Address</th>
+            <th>Created</th>
+            <th style="text-align:right">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="user-body"></tbody>
+      </table>
+      <div class="empty-state" id="empty-state" style="display:none;">
+        <p>No users yet. Add your first one.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://rgqyweaxmsyqwhutdqaa.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJncXl3ZWF4bXN5cXdodXRkcWFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxMTE3MjEsImV4cCI6MjA4NTY4NzcyMX0.Kez-WwuJRusuQiGSL0pVQze4Qq-j-P0USQtjsk8c6uY';
+
+  const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  async function loadUsers() {
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('table-wrap').style.display = 'none';
+    const { data, error } = await client.from('users').select('*').order('id');
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('table-wrap').style.display = 'block';
+    if (error) { showToast('Error loading users: ' + error.message, 'error'); return; }
+    renderTable(data);
+  }
+
+  function renderTable(data) {
+    const tbody = document.getElementById('user-body');
+    const empty = document.getElementById('empty-state');
+    document.getElementById('user-count').textContent = data.length;
+    if (data.length === 0) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+    empty.style.display = 'none';
+    tbody.innerHTML = data.map(function(u) {
+      return '<tr>' +
+        '<td class="td-id">' + u.id + '</td>' +
+        '<td class="td-name">' + esc(u.name) + '</td>' +
+        '<td class="td-email">' + esc(u.email) + '</td>' +
+        '<td>' + esc(u.address || '') + '</td>' +
+        '<td>' + formatDate(u.created_at) + '</td>' +
+        '<td><div class="td-actions">' +
+          '<button class="btn btn-edit" onclick="openEdit(' + u.id + ',\'' + esc(u.name) + '\',\'' + esc(u.email) + '\',\'' + esc(u.address || '') + '\')">Edit</button>' +
+          '<button class="btn btn-danger" onclick="deleteUser(' + u.id + ',\'' + esc(u.name) + '\')">Delete</button>' +
+        '</div></td></tr>';
+    }).join('');
+  }
+
+  async function saveUser() {
+    const name = document.getElementById('inp-name').value.trim();
+    const email = document.getElementById('inp-email').value.trim();
+    const address = document.getElementById('inp-address').value.trim();
+    const editId = document.getElementById('edit-id').value;
+    if (!name || !email) { showToast('Name and email are required', 'error'); return; }
+    var result;
+    if (editId) {
+      result = await client.from('users').update({ name, email, address }).eq('id', editId);
+    } else {
+      result = await client.from('users').insert([{ name, email, address }]);
+    }
+    if (result.error) { showToast('Error saving: ' + result.error.message, 'error'); return; }
+    showToast(editId ? 'User updated' : 'User added', 'success');
+    hideForm();
+    loadUsers();
+  }
+
+  async function deleteUser(id, name) {
+    if (!confirm('Delete user "' + name + '"? This cannot be undone.')) return;
+    const { error } = await client.from('users').delete().eq('id', id);
+    if (error) { showToast('Error deleting: ' + error.message, 'error'); return; }
+    showToast('User deleted', 'success');
+    loadUsers();
+  }
+
+  function showAddForm() {
+    document.getElementById('form-title').textContent = 'Add New User';
+    document.getElementById('edit-id').value = '';
+    document.getElementById('inp-name').value = '';
+    document.getElementById('inp-email').value = '';
+    document.getElementById('inp-address').value = '';
+    document.getElementById('form-card').style.display = 'block';
+    document.getElementById('inp-name').focus();
+    document.getElementById('form-card').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function openEdit(id, name, email, address) {
+    document.getElementById('form-title').textContent = 'Edit User';
+    document.getElementById('edit-id').value = id;
+    document.getElementById('inp-name').value = name;
+    document.getElementById('inp-email').value = email;
+    document.getElementById('inp-address').value = address;
+    document.getElementById('form-card').style.display = 'block';
+    document.getElementById('inp-name').focus();
+    document.getElementById('form-card').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function hideForm() {
+    document.getElementById('form-card').style.display = 'none';
+    document.getElementById('edit-id').value = '';
+    document.getElementById('inp-name').value = '';
+    document.getElementById('inp-email').value = '';
+    document.getElementById('inp-address').value = '';
+  }
+
+  function esc(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    return d.toLocaleDateString('en-IE', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  var toastTimer;
+  function showToast(msg, type) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'show ' + (type || '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function() { t.className = ''; }, 3000);
+  }
+
+  loadUsers();
+</script>
+</body>
+</html>
