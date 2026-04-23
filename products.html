@@ -14,14 +14,11 @@
 --surface:#ffffff;
 --accent:#2a6049;
 --accent-light:#e8f2ee;
---accent-mid:#4a9070;
 --text:#1a1a18;
 --muted:#6b6b60;
 --border:#dddbd3;
 --danger:#c0392b;
---danger-light:#fdecea;
 --radius:12px;
---shadow:0 2px 16px rgba(0,0,0,0.07);
 }
 
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text)}
@@ -37,7 +34,7 @@ height:64px;
 }
 
 .logo{font-family:'Syne';font-weight:800}
-.logo span{opacity:.6;font-weight:400}
+.logo span{opacity:.6}
 
 nav a{color:rgba(255,255,255,.75);text-decoration:none;margin-left:1.5rem}
 nav a.active,nav a:hover{color:#fff}
@@ -51,6 +48,7 @@ main{max-width:1000px;margin:auto;padding:2rem}
 .btn{padding:.6rem 1.2rem;border-radius:8px;border:none;cursor:pointer}
 .btn-primary{background:var(--accent);color:#fff}
 .btn-danger{border:1px solid var(--danger);color:var(--danger);background:transparent}
+.btn-edit{background:var(--accent-light);color:var(--accent);border:1px solid var(--border);padding:.4rem .8rem;border-radius:6px;cursor:pointer}
 
 .form-card{
 background:var(--surface);
@@ -58,21 +56,21 @@ border:1px solid var(--border);
 border-radius:var(--radius);
 padding:1.5rem;
 margin-bottom:2rem;
+display:none;
 }
 
 .form-group{margin-bottom:1rem}
 .form-group input{
-width:100%;padding:.6rem;border:1px solid var(--border);border-radius:6px
+width:100%;padding:.6rem;border:1px solid var(--border);border-radius:6px;
 }
 
-.table-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)}
+.table-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow-x:auto}
 
 table{width:100%;border-collapse:collapse}
-th,td{padding:.8rem;border-bottom:1px solid #eee}
-th{text-align:left;font-size:.8rem;color:var(--muted)}
+th,td{padding:.8rem;border-bottom:1px solid #eee;text-align:left}
+th{font-size:.8rem;color:var(--muted)}
 
-.product-img{width:60px;height:60px;object-fit:cover;border-radius:6px}
-
+.product-img{width:50px;height:50px;object-fit:cover;border-radius:8px}
 .actions{display:flex;gap:.5rem}
 </style>
 </head>
@@ -81,10 +79,11 @@ th{text-align:left;font-size:.8rem;color:var(--muted)}
 <header>
 <div class="logo">Student<span>Shop</span></div>
 <nav>
-<a href="INDEX.html">Home</a>
-<a href="categories.html">Categories</a>
-<a href="products.html" class="active">Products</a>
-<a href="orders.html">Orders</a>
+  <a href="index.html">Home</a>
+  <a href="categories.html">Categories</a>
+  <a href="products.html" class="active">Products</a>
+  <a href="orders.html">Orders</a>
+  <a href="users.html">Users</a>
 </nav>
 </header>
 
@@ -92,14 +91,16 @@ th{text-align:left;font-size:.8rem;color:var(--muted)}
 
 <div class="page-header">
 <h1>Products<span>Manage your products</span></h1>
-<button class="btn btn-primary" onclick="showForm()">Add Product</button>
+<button class="btn btn-primary" onclick="showForm()">+ Add Product</button>
 </div>
 
-<div class="form-card" id="form" style="display:none">
+<div class="form-card" id="form">
+<h3 style="margin-bottom:1rem;color:var(--accent)">New Product</h3>
 <div class="form-group"><input id="name" placeholder="Product name"></div>
-<div class="form-group"><input id="price" placeholder="Price"></div>
-<div class="form-group"><input id="image" placeholder="Image URL"></div>
+<div class="form-group"><input id="price" placeholder="Price (€)"></div>
+<div class="form-group"><input id="image" placeholder="Image URL (optional)"></div>
 <button class="btn btn-primary" onclick="addProduct()">Save</button>
+<button class="btn" style="background:#ccc;margin-left:.5rem" onclick="hideForm()">Cancel</button>
 </div>
 
 <div class="table-card">
@@ -124,55 +125,111 @@ const SUPABASE_URL="https://rgqyweaxmsyqwhutdqaa.supabase.co";
 const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJncXl3ZWF4bXN5cXdodXRkcWFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxMTE3MjEsImV4cCI6MjA4NTY4NzcyMX0.Kez-WwuJRusuQiGSL0pVQze4Qq-j-P0USQtjsk8c6uY";
 
 async function load(){
-const res=await fetch(`${SUPABASE_URL}/rest/v1/products` ,{
-headers:{apikey:SUPABASE_KEY,Authorization:`Bearer ${SUPABASE_KEY}`}
-});
-const data=await res.json();
-render(data);
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/products?order=id.asc`,{
+    headers:{apikey:SUPABASE_KEY,Authorization:`Bearer ${SUPABASE_KEY}`}
+  });
+  const data=await res.json();
+  render(data);
 }
 
 function render(data){
-const el=document.getElementById("list");
-el.innerHTML=data.map(p=>`
-<tr>
-<td>${p.id}</td>
-<td><img class="product-img" src="${p.image_url||'https://via.placeholder.com/60'}"></td>
-<td>${p.name}</td>
-<td>€${p.price}</td>
-<td class="actions">
-<button class="btn btn-danger" onclick="del(${p.id})">Delete</button>
-</td>
-</tr>`).join("");
+  const el=document.getElementById("list");
+  if(data.length===0){
+    el.innerHTML='<tr><td colspan="5" style="text-align:center;padding:2rem">No products yet. Add your first one!</td></tr>';
+    return;
+  }
+  el.innerHTML=data.map(p=>`
+    <tr>
+      <td>${p.id}</td>
+      <td><img class="product-img" src="images/${getImageFile(p.name)}" alt="${p.name}" onerror="this.src='https://placehold.co/50x50?text=📦'"></td>
+      <td>${escapeHtml(p.name)}</td>
+      <td>€${parseFloat(p.price).toFixed(2)}</td>
+      <td class="actions">
+        <button class="btn-edit" onclick="editProduct(${p.id},'${escapeHtml(p.name)}',${p.price})">Edit</button>
+        <button class="btn btn-danger" onclick="del(${p.id})">Delete</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function getImageFile(name){
+  const files = {
+    'Laptop Stand': 'laptop_web.jpg',
+    'USB Hub': 'Electronics_web.png',
+    'Python Programming Book': 'Books_web.jpg',
+    'Python Book': 'books_web.jpg',
+    'TU Dublin Hoodie': 'clothing_web.jpg',
+    'Notebook Set': 'stationary_web.jpg',
+    'Energy Drink Pack': 'Foods.png'
+  };
+  return files[name] || 'placeholder.jpg';
+}
+
+function escapeHtml(str){
+  if(!str) return '';
+  return str.replace(/[&<>]/g, function(m){
+    if(m==='&') return '&amp;';
+    if(m==='<') return '&lt;';
+    if(m==='>') return '&gt;';
+    return m;
+  });
 }
 
 async function addProduct(){
-const name=document.getElementById("name").value;
-const price=document.getElementById("price").value;
-const image=document.getElementById("image").value;
+  const name=document.getElementById("name").value;
+  const price=document.getElementById("price").value;
+  const image=document.getElementById("image").value;
+  
+  if(!name || !price){
+    alert("Please fill in name and price");
+    return;
+  }
+  
+  await fetch(`${SUPABASE_URL}/rest/v1/products`,{
+    method:"POST",
+    headers:{"Content-Type":"application/json",apikey:SUPABASE_KEY,Authorization:`Bearer ${SUPABASE_KEY}`},
+    body:JSON.stringify({name,price:parseFloat(price),image_url:image})
+  });
+  
+  hideForm();
+  load();
+}
 
-await fetch(`${SUPABASE_URL}/rest/v1/products`,{
-method:"POST",
-headers:{"Content-Type":"application/json",apikey:SUPABASE_KEY,Authorization:`Bearer ${SUPABASE_KEY}`},
-body:JSON.stringify({name,price,image_url:image})
-});
-
-load();
+async function editProduct(id, oldName, oldPrice){
+  const newName = prompt("Edit product name:", oldName);
+  if(!newName) return;
+  const newPrice = prompt("Edit price (€):", oldPrice);
+  if(!newPrice) return;
+  
+  await fetch(`${SUPABASE_URL}/rest/v1/products?id=eq.${id}`,{
+    method:"PATCH",
+    headers:{"Content-Type":"application/json",apikey:SUPABASE_KEY,Authorization:`Bearer ${SUPABASE_KEY}`},
+    body:JSON.stringify({name:newName,price:parseFloat(newPrice)})
+  });
+  load();
 }
 
 async function del(id){
-await fetch(`${SUPABASE_URL}/rest/v1/products?id=eq.${id}`,{
-method:"DELETE",
-headers:{apikey:SUPABASE_KEY,Authorization:`Bearer ${SUPABASE_KEY}`}
-});
-load();
+  if(!confirm("Delete this product?")) return;
+  await fetch(`${SUPABASE_URL}/rest/v1/products?id=eq.${id}`,{
+    method:"DELETE",
+    headers:{apikey:SUPABASE_KEY,Authorization:`Bearer ${SUPABASE_KEY}`}
+  });
+  load();
 }
 
 function showForm(){
-document.getElementById("form").style.display="block";
+  document.getElementById("form").style.display="block";
+}
+
+function hideForm(){
+  document.getElementById("form").style.display="none";
+  document.getElementById("name").value="";
+  document.getElementById("price").value="";
+  document.getElementById("image").value="";
 }
 
 load();
 </script>
-
 </body>
 </html>
